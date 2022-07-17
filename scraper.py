@@ -8,6 +8,7 @@ from pandas import json_normalize
 import os
 from pathlib import Path
 import logging
+from datetime import date
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -15,16 +16,16 @@ logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-fileHandler = logging.FileHandler('logs/scrappe.log')
+fileHandler = logging.FileHandler(f'logs/{str(date.today() )} - scrape.log')
 fileHandler.setFormatter(formatter)
 
 logger.addHandler(fileHandler)
 
-class ScrapperResults:
-    def __init__(self,leagues = ["EPL", "La liga", "Bundesliga","Serie A","Ligue 1","RFPL"],seasons = [2014 + ii for ii in range(7)]) -> None:
+class ScraperResults:
+    def __init__(self,leagues = ["EPL", "La liga", "Bundesliga","Serie A","Ligue 1","RFPL"],seasons = [2014 + ii for ii in range(8)]) -> None:
         self.leagues = leagues # Initialize the leagues
         self.seasons = seasons # Initialize the seasons
-    def loop_scrappe(self,parent_folder = "Data/"):
+    def loop_scrape(self,parent_folder = "Data/"):
         # Step 0 - Create folder 
         directoryPath = Path(parent_folder)
         if directoryPath.is_dir() != True:
@@ -111,10 +112,10 @@ class ScrapperResults:
                             else:
                                 db.to_csv(filePath)
 # %%
-class ScrapperRosters:
+class ScraperRosters:
     def __init__(self):
         pass
-    def loop_scrappe(self, directoryPath = 'Data/Rosters'):
+    def loop_scrape(self, directoryPath = 'Data/Rosters'):
         #Load directory
         directoryPath = Path(directoryPath)
         filePath = directoryPath.joinpath('rosters.csv')
