@@ -7,7 +7,7 @@ class DataPreprocessing:
         self.ScraperResults = ScraperResults()
         self.ScraperRoster = ScraperRosters()
         self.output_path = output_path
-        if update or ~Path(output_path+"dataset.csv").exists():
+        if update or not Path(output_path+"dataset.csv").exists():
             # Step 1 - Update the database 
             self.__updateDatabase()
             # Step 2 - Read the database
