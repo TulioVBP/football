@@ -84,7 +84,6 @@ class DataPreprocessing:
         for matchId in self.df['matchId'].unique():
             idx = self.df[self.df['matchId'] == matchId].index
             idxT = [idx[-1+ii] for ii in range(len(idx))]
-            print(idx,idxT)
             self.df.loc[idx,'away_points'] = self.df.loc[idxT,'home_points']
             self.df.loc[idx,'scored_goals_season_a'] = self.df.loc[idxT,'scored_goals_season_h']
             self.df.loc[idx, 'missed_goals_season_a'] = self.df.loc[idxT,'missed_goals_season_h']
@@ -96,5 +95,5 @@ class DataPreprocessing:
             self.df.loc[idx, 'avg_deep_allowed_a'] = self.df.loc[idxT,'avg_deep_allowed_h']
         
     def __saveData(self):
-        self.df.to_csv(self.output_path)
+        self.df.to_csv(self.output_path + 'dataset.csv')
 
