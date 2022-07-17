@@ -3,18 +3,19 @@ from pathlib import Path
 from scraper import ScraperResults, ScraperRosters
 
 class DataPreprocessing:
-    def __init__(self, update = False):
+    def __init__(self, update = False, output_path = 'Data/Preprocessed/'):
         self.ScraperResults = ScraperResults()
         self.ScraperRoster = ScraperRosters()
-        # Step 1 - Update the database
-        if update: 
+        self.output_path = output_path
+        if update or ~Path(output_path+"dataset.csv").exists():
+            # Step 1 - Update the database 
             self.__updateDatabase()
-        # Step 2 - Read the database
-        self.__readData()
-        # Step 3 - Expand the data values
-        self.__expandData()
-        # Step 4 - Save the data
-        self.__saveData()
+            # Step 2 - Read the database
+            self.__readData()
+            # Step 3 - Expand the data values
+            self.__expandData()
+            # Step 4 - Save the data
+            self.__saveData()
 
     def __updateDatabase(self):
         self.ScraperResults.loop_scrape()
@@ -79,7 +80,21 @@ class DataPreprocessing:
                 self.df.loc[idx,'avg_ppda_allowed.def_h'] = self.df.loc[idx,'ppda_allowed.def'].cumsum()/(grp.cumcount()+1)
                 self.df.loc[idx,'avg_deep_h']= self.df.loc[idx,'deep'].cumsum()/(grp.cumcount()+1)
                 self.df.loc[idx,'avg_deep_allowed_h']= self.df.loc[idx,'deep_allowed'].cumsum()/(grp.cumcount()+1)
+        # Mirroring for away teams
+        for matchId in self.df['matchId'].unique():
+            idx = self.df[self.df['matchId'] == matchId].index
+            idxT = [idx[-1+ii] for ii in range(len(idx))]
+            print(idx,idxT)
+            self.df.loc[idx,'away_points'] = self.df.loc[idxT,'home_points']
+            self.df.loc[idx,'scored_goals_season_a'] = self.df.loc[idxT,'scored_goals_season_h']
+            self.df.loc[idx, 'missed_goals_season_a'] = self.df.loc[idxT,'missed_goals_season_h']
+            self.df.loc[idx, 'avg_ppda.att_a'] = self.df.loc[idxT,'avg_ppda.att_h']
+            self.df.loc[idx, 'avg_ppda.def_a'] = self.df.loc[idxT,'avg_ppda.def_h']
+            self.df.loc[idx, 'avg_ppda_allowed.att_a'] = self.df.loc[idxT,'avg_ppda_allowed.att_h']
+            self.df.loc[idx, 'avg_ppda_allowed.def_a'] = self.df.loc[idxT,'avg_ppda_allowed.def_h']
+            self.df.loc[idx, 'avg_deep_a'] = self.df.loc[idxT,'avg_deep_h']
+            self.df.loc[idx, 'avg_deep_allowed_a'] = self.df.loc[idxT,'avg_deep_allowed_h']
         
-    def __saveData(self, path_ = 'Data/Preprocessed'):
-        self.df.to_csv(path_ + 'processedData.csv')
+    def __saveData(self):
+        self.df.to_csv(self.output_path)
 
