@@ -23,26 +23,27 @@ class FootballDataset(Dataset):
         # Dropping non-needed columns
         schema = self.numerical + self.categorical + self.target
         df = df[schema]
-        df.loc[df[self.target[0]] > 2, self.target[0]] = 2
 
         # One-hot encoding of categorical variables
-        self.football_frame = pd.get_dummies(df,columns = self.categorical)#, prefix=self.categorical)
+        self.football_frame = pd.get_dummies(df, prefix=self.categorical)
 
         # Save target and predictors
-        X = self.football_frame.drop(self.target, axis=1)
-        y = self.football_frame[self.target]
-        
-        self.X = torch.tensor(X.values).float()
-        self.y = torch.tensor(y.values).long().flatten()
+        self.X = self.football_frame.drop(self.target, axis=1)
+        # Capping the maximum return
+        def capping(row):
+            if row > 2: 
+                return 2 
+            else:
+                return row
+    
+        self.y = self.football_frame[self.target]
+        self.y[self.y > 2] = 2
 
     def __len__(self):
         return len(self.football_frame)
 
     def __getitem__(self, idx):
         # Convert idx from tensor to list due to pandas bug (that arises when using pytorch's random_split)
-        #if isinstance(idx, torch.Tensor):
-        #    idx = idx.tolist()
-        return [self.X[idx],
-                self.y[idx]]
-        #return [torch.tensor(self.X.iloc[idx].values).float(), 
-        #        torch.tensor(self.y.iloc[idx].values).int().flatten().flatten()]
+        if isinstance(idx, torch.Tensor):
+            idx = idx.tolist()
+        return [torch.tensor(self.X.iloc[idx].values).float(), torch.tensor(self.y.iloc[idx].values).squeeze()]

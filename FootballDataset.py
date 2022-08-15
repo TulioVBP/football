@@ -29,7 +29,15 @@ class FootballDataset(Dataset):
 
         # Save target and predictors
         self.X = self.football_frame.drop(self.target, axis=1)
+        # Capping the maximum return
+        def capping(row):
+            if row > 2: 
+                return 2 
+            else:
+                return row
+    
         self.y = self.football_frame[self.target]
+        self.y[self.y > 2] = 2
 
     def __len__(self):
         return len(self.football_frame)
@@ -38,4 +46,4 @@ class FootballDataset(Dataset):
         # Convert idx from tensor to list due to pandas bug (that arises when using pytorch's random_split)
         if isinstance(idx, torch.Tensor):
             idx = idx.tolist()
-        return [self.X.iloc[idx].values, self.y[idx]]
+        return [torch.tensor(self.X.iloc[idx].values).float(), torch.tensor(self.y.iloc[idx].values).squeeze()]
