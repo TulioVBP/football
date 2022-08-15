@@ -6,7 +6,7 @@ import torch
 class FootballDataset(Dataset):
     """Football dataset."""
 
-    def __init__(self,cat_par, num_par, target, csv_file = "Data/Preprocessed/dataset.csv"):
+    def __init__(self,cat_par, num_par, target, league = None, season = None, csv_file = "Data/Preprocessed/dataset.csv"):
         """Initializes instance of class FootballDataset.
 
         Args:
@@ -14,6 +14,12 @@ class FootballDataset(Dataset):
 
         """
         df = pd.read_csv(csv_file)
+        
+        # Filtering per league/season
+        if league is not None:
+            df = df[df["league"].isin(league)]
+        if season is not None:
+            df = df[df["season"].isin(season)]
 
         # Grouping variable names
         self.numerical = num_par
@@ -26,6 +32,9 @@ class FootballDataset(Dataset):
 
         # One-hot encoding of categorical variables
         self.football_frame = pd.get_dummies(df, prefix=self.categorical)
+        
+        # Dropping matches not available (mismatch between rosters and matches"
+        self.football_frame.dropna(subset = self.numerical, inplace = True)
 
         # Save target and predictors
         self.X = self.football_frame.drop(self.target, axis=1)
