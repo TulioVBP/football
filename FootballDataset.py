@@ -32,7 +32,7 @@ class FootballDataset(Dataset):
         self.y = self.football_frame[self.target]
 
     def __len__(self):
-        return len(self.students_frame)
+        return len(self.football_frame)
 
     def __getitem__(self, idx):
         # Convert idx from tensor to list due to pandas bug (that arises when using pytorch's random_split)
