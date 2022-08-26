@@ -1,12 +1,22 @@
 import os
+
 import pandas as pd
-from torch.utils.data import Dataset
 import torch
+from torch.utils.data import Dataset
+
 
 class FootballDataset(Dataset):
     """Football dataset."""
 
-    def __init__(self,cat_par, num_par, target, league = None, season = None, csv_file = "Data/Preprocessed/dataset.csv"):
+    def __init__(
+        self,
+        cat_par,
+        num_par,
+        target,
+        league=None,
+        season=None,
+        csv_file="Data/Preprocessed/dataset.csv",
+    ):
         """Initializes instance of class FootballDataset.
 
         Args:
@@ -14,7 +24,7 @@ class FootballDataset(Dataset):
 
         """
         df = pd.read_csv(csv_file)
-        
+
         # Filtering per league/season
         if league is not None:
             df = df[df["league"].isin(league)]
@@ -32,19 +42,20 @@ class FootballDataset(Dataset):
 
         # One-hot encoding of categorical variables
         self.football_frame = pd.get_dummies(df, prefix=self.categorical)
-        
+
         # Dropping matches not available (mismatch between rosters and matches"
-        self.football_frame.dropna(subset = self.numerical, inplace = True)
+        self.football_frame.dropna(subset=self.numerical, inplace=True)
 
         # Save target and predictors
         self.X = self.football_frame.drop(self.target, axis=1)
+
         # Capping the maximum return
         def capping(row):
-            if row > 2: 
-                return 2 
+            if row > 2:
+                return 2
             else:
                 return row
-    
+
         self.y = self.football_frame[self.target]
         self.y[self.y > 2] = 2
 
@@ -55,4 +66,9 @@ class FootballDataset(Dataset):
         # Convert idx from tensor to list due to pandas bug (that arises when using pytorch's random_split)
         if isinstance(idx, torch.Tensor):
             idx = idx.tolist()
-        return [torch.tensor(self.X.iloc[idx].values).float(), torch.tensor(self.y.iloc[idx].values).squeeze()]
+        return [
+            torch.tensor(self.X.iloc[idx].values).float(),
+            torch.tensor(self.y.iloc[idx].values).squeeze(),
+        ]
+
+    # Tests
