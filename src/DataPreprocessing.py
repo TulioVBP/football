@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-from scraper import ScraperResults, ScraperRosters
+from src.scraper import ScraperResults, ScraperRosters
 
 class DataPreprocessing:
     def __init__(self, update = False, output_path = 'Data/Preprocessed/'):

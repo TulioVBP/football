@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 from datetime import date, datetime, time, timedelta
-import scraper
+import src.scraper as scraper
 import logging
 import numpy as np
 

@@ -1,0 +1,10 @@
+num_params: 
+  - season_points
+  - scored_goals_season
+  - missed_goals_season
+  - season_points_adv
+  - scored_goals_season_adv
+  - missed_goals_season_adv
+
+cat_params:
+  - h_a
