@@ -1,3 +1,14 @@
+# How to run this package
+
+## Setup the environment
+
+Run the below commands to setup the virtual environment (using poetry):
+    make activate
+    make setup
+
+
+# Reference
+
 ## Football predicter
 
 ### Problem: Predicting football results based on team performance
