@@ -11,12 +11,12 @@ stages:
       size: 177
       nfiles: 1
     - path: data/raw
-      md5: d2ec40ca9d73e7f5810630f078dc1ac0.dir
-      size: 44049799
-      nfiles: 232
+      md5: a091aabc3504c825649264d139587583.dir
+      size: 74395293
+      nfiles: 233
     - path: src/process.py
-      md5: 47706447ab562ae70d8a591fee4507d4
-      size: 599
+      md5: 57ac650ca6d6e8d99e8419d8a92896c8
+      size: 585
     outs:
     - path: data/processed
       md5: 5b07d3cdfb0df6e195e2231faada33b9.dir
