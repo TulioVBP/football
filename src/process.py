@@ -18,7 +18,6 @@ def process_data(config: DictConfig, update=False):
     DataPreprocessing(
         abspath(config.processed.path), abspath(config.raw.dir), update
     )
-    return 0
 
 
 if __name__ == "__main__":
