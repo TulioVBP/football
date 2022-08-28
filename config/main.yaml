@@ -5,6 +5,28 @@ defaults:
 
 raw:
   dir: data/raw
+  schema_teams: 
+    - h_a
+    - xG
+    - xGA
+    - npxG
+    - npxGA
+    - deep
+    - deep_allowed
+    - scored
+    - missed
+    - xpts
+    - result
+    - date
+    - wins
+    - draws
+    - loses
+    - pts
+    - npxGD
+    - ppda.att
+    - ppda.def
+    - ppda_allowed.att
+    - ppda_allowed.def
 
 processed:
   dir: data/processed

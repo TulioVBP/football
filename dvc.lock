@@ -4,8 +4,8 @@ stages:
     cmd: python src/process.py
     deps:
     - path: config/main.yaml
-      md5: 0b091db73b143d09886ff00f467f02c6
-      size: 261
+      md5: e6797f89a95c16eb991093c8b929c631
+      size: 554
     - path: config/process
       md5: 091afbd0dd73c1b36a4614ce44f38951.dir
       size: 177
@@ -15,26 +15,26 @@ stages:
       size: 74389145
       nfiles: 232
     - path: src/process.py
-      md5: b76a23816872437896bccd0b716762aa
-      size: 728
+      md5: 9ad90a662a1b70e96349c3f95c244ec5
+      size: 585
     outs:
     - path: data/processed
-      md5: 46606055cd56b749b47fbc83dfc37bd5.dir
-      size: 29026293
+      md5: 10e46ced126754b0dc991087d1fdabad.dir
+      size: 32089600
       nfiles: 3
   train_model:
     cmd: python src/train_model.py
     deps:
     - path: config/main.yaml
-      md5: 0b091db73b143d09886ff00f467f02c6
-      size: 261
+      md5: e6797f89a95c16eb991093c8b929c631
+      size: 554
     - path: config/model
       md5: 8a4551ca9bd9ab6dc78a8dfc6b43ba11.dir
       size: 12
       nfiles: 1
     - path: data/processed
-      md5: 46606055cd56b749b47fbc83dfc37bd5.dir
-      size: 29026293
+      md5: 10e46ced126754b0dc991087d1fdabad.dir
+      size: 32089600
       nfiles: 3
     - path: src/train_model.py
       md5: 62ccdea82d83f4885e1502d50d9dc87c

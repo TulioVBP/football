@@ -107,8 +107,16 @@ class DataPreprocessing:
     def __expandData(self):
         schema_shift = [
             "season_points",
+            "avg_season_points",
             "scored_goals_season",
+            "avg_scored_goals_season",
             "missed_goals_season",
+            "avg_missed_goals_season",
+            "avg_xG_season",
+            "avg_xGA_season",
+            "avgn_points",
+            "avgn_scored_goals",
+            "avgn_missed_goals",
             "avg_ppda.att",
             "avg_ppda.def",
             "avg_ppda_allowed.att",
@@ -134,6 +142,7 @@ class DataPreprocessing:
         # Adding more fields
         seasons = [2014 + ii for ii in range(8)]
         self.df.sort_values(by="date", inplace=True)
+        n = 3  # looking at last three games form
         for team_id in self.df["team_id"].unique():
             for season in seasons:
                 idx = self.df.loc[
@@ -144,17 +153,48 @@ class DataPreprocessing:
                 if len(idx) == 0:
                     continue
                 grp = self.df.loc[idx, :].groupby("team_id")
-                # sh_grp = grp.apply(lambda p: p.shift(fill_value=0).cumsum())
-                # print(sh_grp)
                 self.df.loc[idx, "season_points"] = self.df.loc[
                     idx, "pts"
                 ].cumsum()
+                self.df.loc[idx, "avg_season_points"] = self.df.loc[
+                    idx, "pts"
+                ].cumsum() / (grp.cumcount() + 1)
                 self.df.loc[idx, "scored_goals_season"] = self.df.loc[
                     idx, "scored"
                 ].cumsum()
+                self.df.loc[idx, "avg_scored_goals_season"] = self.df.loc[
+                    idx, "scored"
+                ].cumsum() / (grp.cumcount() + 1)
                 self.df.loc[idx, "missed_goals_season"] = self.df.loc[
                     idx, "missed"
                 ].cumsum()
+                self.df.loc[idx, "avg_missed_goals_season"] = self.df.loc[
+                    idx, "missed"
+                ].cumsum() / (grp.cumcount() + 1)
+                self.df.loc[idx, "avg_xG_season"] = self.df.loc[
+                    idx, "xG"
+                ].cumsum() / (grp.cumcount() + 1)
+                self.df.loc[idx, "avg_xGA_season"] = self.df.loc[
+                    idx, "xGA"
+                ].cumsum() / (grp.cumcount() + 1)
+                self.df.loc[idx, "avgn_points"] = (
+                    self.df.loc[idx, "pts"]
+                    .rolling(window=n, min_periods=1)
+                    .sum()
+                    / n
+                )
+                self.df.loc[idx, "avgn_scored_goals"] = (
+                    self.df.loc[idx, "scored"]
+                    .rolling(window=n, min_periods=1)
+                    .sum()
+                    / n
+                )
+                self.df.loc[idx, "avgn_missed_goals"] = (
+                    self.df.loc[idx, "missed"]
+                    .rolling(window=n, min_periods=1)
+                    .sum()
+                    / 3
+                )
                 self.df.loc[idx, "avg_ppda.att"] = self.df.loc[
                     idx, "ppda.att"
                 ].cumsum() / (grp.cumcount() + 1)
@@ -208,29 +248,6 @@ class DataPreprocessing:
             self.df.loc[idx, "avg_deep_allowed_adv"] = self.df.loc[
                 idxT, "avg_deep_allowed"
             ]
-            """
-            for ii in idx:
-                if self.df.loc[ii,'h_a'] == 'a':
-                    self.df.loc[idx,'season_points_a'] = self.df.loc[ii,'season_points']
-                    self.df.loc[idx,'scored_goals_season_a'] = self.df.loc[ii,'scored_goals_season']
-                    self.df.loc[idx, 'missed_goals_season_a'] = self.df.loc[ii,'missed_goals_season']
-                    self.df.loc[idx, 'avg_ppda.att_a'] = self.df.loc[ii,'avg_ppda.att']
-                    self.df.loc[idx, 'avg_ppda.def_a'] = self.df.loc[ii,'avg_ppda.def']
-                    self.df.loc[idx, 'avg_ppda_allowed.att_a'] = self.df.loc[ii,'avg_ppda_allowed.att']
-                    self.df.loc[idx, 'avg_ppda_allowed.def_a'] = self.df.loc[ii,'avg_ppda_allowed.def']
-                    self.df.loc[idx, 'avg_deep_a'] = self.df.loc[ii,'avg_deep']
-                    self.df.loc[idx, 'avg_deep_allowed_a'] = self.df.loc[ii,'avg_deep_allowed']
-                else:
-                    self.df.loc[idx, 'season_points_h'] = self.df.loc[ii,'season_points']
-                    self.df.loc[idx, 'scored_goals_season_h'] = self.df.loc[ii,'scored_goals_season']
-                    self.df.loc[idx, 'missed_goals_season_h'] = self.df.loc[ii,'missed_goals_season']
-                    self.df.loc[idx, 'avg_ppda.att_h'] = self.df.loc[ii,'avg_ppda.att']
-                    self.df.loc[idx, 'avg_ppda.def_h'] = self.df.loc[ii,'avg_ppda.def']
-                    self.df.loc[idx, 'avg_ppda_allowed.att_h'] = self.df.loc[ii,'avg_ppda_allowed.att']
-                    self.df.loc[idx, 'avg_ppda_allowed.def_h'] = self.df.loc[ii,'avg_ppda_allowed.def']
-                    self.df.loc[idx, 'avg_deep_h'] = self.df.loc[ii,'avg_deep']
-                    self.df.loc[idx, 'avg_deep_allowed_h'] = self.df.loc[ii,'avg_deep_allowed']
-            """
 
     def __saveData(self):
         self.df.to_csv(self.output_path)

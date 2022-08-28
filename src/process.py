@@ -13,12 +13,11 @@ from DataPreprocessing import DataPreprocessing
 
 
 @hydra.main(config_path="../config", config_name="main")
-def process_data(config: DictConfig):
+def process_data(config: DictConfig, update=False):
     """Function to process the data"""
-    DataPreprocessing(abspath(config.processed.path), abspath(config.raw.dir))
-    # processed_path = abspath(config.processed.path)
-    # print(f"Process data using {raw_path}")
-    # print(f"Columns used: {config.process.use_columns}")
+    DataPreprocessing(
+        abspath(config.processed.path), abspath(config.raw.dir), update
+    )
     return 0
 
 
