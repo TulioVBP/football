@@ -3,9 +3,9 @@
 ## Setup the environment
 
 Run the below commands to setup the virtual environment (using poetry):
+
     make activate
     make setup
-
 
 # Reference
 
