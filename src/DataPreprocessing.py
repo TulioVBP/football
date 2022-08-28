@@ -1,19 +1,23 @@
 from pathlib import Path
 
+import hydra
 import pandas as pd
+from hydra.utils import to_absolute_path as abspath
+from omegaconf import DictConfig
 
-from src.scraper import ScraperResults, ScraperRosters
+from scraper import ScraperResults, ScraperRosters
 
 
 class DataPreprocessing:
-    def __init__(self, update=False, output_path="Data/Preprocessed/"):
+    def __init__(self, output_path, input_dir, update=False):
         self.ScraperResults = ScraperResults()
         self.ScraperRoster = ScraperRosters()
         self.output_path = output_path
-        if update or not Path(output_path + "dataset.csv").exists():
+        self.input_dir = input_dir
+        if update:
             # Step 1 - Update the database
             self.__updateDatabase()
-            # Step 2 - Read the database
+        # Step 2 - Read the database
         self.__readData()
         # Step 3 - Expand the data values
         self.__expandData()
@@ -24,10 +28,15 @@ class DataPreprocessing:
         self.ScraperResults.loop_scrape()
         self.ScraperRoster.loop_scrape()
 
-    def __readData(
-        self, league_data_path="Data/", rosters_data_path="Data/Rosters/rosters.csv"
-    ):
-        leagues = ["EPL", "La liga", "Bundesliga", "Serie A", "Ligue 1", "RFPL"]
+    def __readData(self):
+        leagues = [
+            "EPL",
+            "La liga",
+            "Bundesliga",
+            "Serie A",
+            "Ligue 1",
+            "RFPL",
+        ]
         schema = [
             "h_a",
             "xG",
@@ -60,19 +69,21 @@ class DataPreprocessing:
                 return int(date_.year) - 1
 
         for league in leagues:
-            directoryPath = Path(league_data_path + league)
-            for file in directoryPath.iterdir():
+            directoryPath = self.input_dir + "/" + league
+            for file in Path(directoryPath).iterdir():
                 if file.suffix == ".csv":
                     print(file)
                     df_temp = pd.read_csv(file, index_col=0)
                     df_temp["H team"] = (
-                        str(file).split(".")[0].split("/")[2].split("-")[1]
+                        str(file).split(".")[0].split("/")[-1].split("-")[1]
                     )
                     df_temp["team_id"] = int(
-                        str(file).split(".")[0].split("/")[2].split("-")[0]
+                        str(file).split(".")[0].split("/")[-1].split("-")[0]
                     )
                     df_temp["h_a_boolean"] = (
-                        df_temp["h_a"].apply(lambda row: row == "h").astype(int)
+                        df_temp["h_a"]
+                        .apply(lambda row: row == "h")
+                        .astype(int)
                     )
                     df_temp["league"] = league
                     df_temp["datetime"] = pd.to_datetime(df_temp["date"])
@@ -86,7 +97,9 @@ class DataPreprocessing:
             df = df.reset_index()  # Reset the index otherwise it is a mess
             df.drop("index", axis=1, inplace=True)
 
-            df_rosters = pd.read_csv(rosters_data_path)
+            df_rosters = pd.read_csv(
+                self.input_dir + "/" + "Rosters/rosters.csv"
+            )
 
             self.df = df
             self.df_rosters = df_rosters
@@ -124,14 +137,18 @@ class DataPreprocessing:
         for team_id in self.df["team_id"].unique():
             for season in seasons:
                 idx = self.df.loc[
-                    (self.df["team_id"] == team_id) & (self.df["season"] == season), :
+                    (self.df["team_id"] == team_id)
+                    & (self.df["season"] == season),
+                    :,
                 ].index
                 if len(idx) == 0:
                     continue
                 grp = self.df.loc[idx, :].groupby("team_id")
                 # sh_grp = grp.apply(lambda p: p.shift(fill_value=0).cumsum())
                 # print(sh_grp)
-                self.df.loc[idx, "season_points"] = self.df.loc[idx, "pts"].cumsum()
+                self.df.loc[idx, "season_points"] = self.df.loc[
+                    idx, "pts"
+                ].cumsum()
                 self.df.loc[idx, "scored_goals_season"] = self.df.loc[
                     idx, "scored"
                 ].cumsum()
@@ -150,9 +167,9 @@ class DataPreprocessing:
                 self.df.loc[idx, "avg_ppda_allowed.def"] = self.df.loc[
                     idx, "ppda_allowed.def"
                 ].cumsum() / (grp.cumcount() + 1)
-                self.df.loc[idx, "avg_deep"] = self.df.loc[idx, "deep"].cumsum() / (
-                    grp.cumcount() + 1
-                )
+                self.df.loc[idx, "avg_deep"] = self.df.loc[
+                    idx, "deep"
+                ].cumsum() / (grp.cumcount() + 1)
                 self.df.loc[idx, "avg_deep_allowed"] = self.df.loc[
                     idx, "deep_allowed"
                 ].cumsum() / (grp.cumcount() + 1)
@@ -166,15 +183,21 @@ class DataPreprocessing:
         for matchId in self.df["matchId"].unique():
             idx = self.df[self.df["matchId"] == matchId].index
             idxT = [idx[-1 + ii] for ii in range(len(idx))]
-            self.df.loc[idx, "season_points_adv"] = self.df.loc[idxT, "season_points"]
+            self.df.loc[idx, "season_points_adv"] = self.df.loc[
+                idxT, "season_points"
+            ]
             self.df.loc[idx, "scored_goals_season_adv"] = self.df.loc[
                 idxT, "scored_goals_season"
             ]
             self.df.loc[idx, "missed_goals_season_adv"] = self.df.loc[
                 idxT, "missed_goals_season"
             ]
-            self.df.loc[idx, "avg_ppda.att_adv"] = self.df.loc[idxT, "avg_ppda.att"]
-            self.df.loc[idx, "avg_ppda.def_adv"] = self.df.loc[idxT, "avg_ppda.def"]
+            self.df.loc[idx, "avg_ppda.att_adv"] = self.df.loc[
+                idxT, "avg_ppda.att"
+            ]
+            self.df.loc[idx, "avg_ppda.def_adv"] = self.df.loc[
+                idxT, "avg_ppda.def"
+            ]
             self.df.loc[idx, "avg_ppda_allowed.att_adv"] = self.df.loc[
                 idxT, "avg_ppda_allowed.att"
             ]
@@ -210,7 +233,4 @@ class DataPreprocessing:
             """
 
     def __saveData(self):
-        self.df.to_csv(self.output_path + "dataset.csv")
-
-    def test_data(self):
-        return 0
+        self.df.to_csv(self.output_path)
