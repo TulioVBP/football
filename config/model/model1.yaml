@@ -1,1 +1,22 @@
 name: model1
+
+num_params: 
+  - season_points
+  - scored_goals_season
+  - missed_goals_season
+  - season_points_adv
+  - scored_goals_season_adv
+  - missed_goals_season_adv
+
+cat_params:
+  - h_a
+
+target:
+  - pts
+
+data_iter_size: 100
+
+num_epochs: 30
+
+learning_rate: 0.2
+

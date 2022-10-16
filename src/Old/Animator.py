@@ -1,22 +1,37 @@
-from IPython import display
 from d2l import torch as d2l
+from IPython import display
 
-class Animator:  #@save
+
+class Animator:  # @save
     """For plotting data in animation."""
-    def __init__(self, xlabel=None, ylabel=None, legend=None, xlim=None,
-                 ylim=None, xscale='linear', yscale='linear',
-                 fmts=('-', 'm--', 'g-.', 'r:'), nrows=1, ncols=1,
-                 figsize=(3.5, 2.5)):
+
+    def __init__(
+        self,
+        xlabel=None,
+        ylabel=None,
+        legend=None,
+        xlim=None,
+        ylim=None,
+        xscale="linear",
+        yscale="linear",
+        fmts=("-", "m--", "g-.", "r:"),
+        nrows=1,
+        ncols=1,
+        figsize=(3.5, 2.5),
+    ):
         # Incrementally plot multiple lines
         if legend is None:
             legend = []
         d2l.use_svg_display()
         self.fig, self.axes = d2l.plt.subplots(nrows, ncols, figsize=figsize)
         if nrows * ncols == 1:
-            self.axes = [self.axes,]
+            self.axes = [
+                self.axes,
+            ]
         # Use a lambda function to capture arguments
-        self.config_axes = lambda: d2l.set_axes(self.axes[
-            0], xlabel, ylabel, xlim, ylim, xscale, yscale, legend)
+        self.config_axes = lambda: d2l.set_axes(
+            self.axes[0], xlabel, ylabel, xlim, ylim, xscale, yscale, legend
+        )
         self.X, self.Y, self.fmts = None, None, fmts
 
     def add(self, x, y):
