@@ -1,0 +1,21 @@
+name: model2
+
+num_params: 
+  - avgn_points
+  - avgn_scored_goals
+  - avgn_missed_goals
+  - avgn_points_adv
+  - avgn_scored_goals_adv
+  - avgn_missed_goals_adv
+
+cat_params:
+  - h_a
+
+target:
+  - pts
+
+data_iter_size: 200
+
+num_epochs: 30
+
+learning_rate: 0.5

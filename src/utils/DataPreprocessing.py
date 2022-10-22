@@ -91,7 +91,7 @@ class DataPreprocessing:
                     df_temp["season"] = df_temp["date"].apply(
                         lambda row: define_season(row)
                     )
-                    df = df.append(df_temp)
+                    df = pd.concat([df, df_temp])
             df["team_id"] = df["team_id"].astype(int)
             df["season"] = df["season"].astype(int)
             df = df.reset_index()  # Reset the index otherwise it is a mess
@@ -247,6 +247,15 @@ class DataPreprocessing:
             self.df.loc[idx, "avg_deep_adv"] = self.df.loc[idxT, "avg_deep"]
             self.df.loc[idx, "avg_deep_allowed_adv"] = self.df.loc[
                 idxT, "avg_deep_allowed"
+            ]
+            self.df.loc[idx, "avgn_scored_goals_adv"] = self.df.loc[
+                idxT, "avgn_scored_goals"
+            ]
+            self.df.loc[idx, "avgn_points_adv"] = self.df.loc[
+                idxT, "avgn_points"
+            ]
+            self.df.loc[idx, "avgn_missed_goals_adv"] = self.df.loc[
+                idxT, "avgn_missed_goals"
             ]
 
     def __saveData(self):

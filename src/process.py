@@ -9,7 +9,7 @@ import hydra
 from hydra.utils import to_absolute_path as abspath
 from omegaconf import DictConfig
 
-from DataPreprocessing import DataPreprocessing
+from utils.DataPreprocessing import DataPreprocessing
 
 
 @hydra.main(config_path="../config", config_name="main")
