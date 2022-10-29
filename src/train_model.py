@@ -5,6 +5,7 @@ Author: Tulio Patriota
 """
 
 from pathlib import Path
+from tkinter import HIDDEN
 
 import hydra
 import numpy as np
@@ -29,6 +30,7 @@ def train_model(config: DictConfig):
 
     input_path = abspath(config.processed.path)
     output_path = abspath(config.final.path)
+    model_path = abspath(config.model.path)
 
     print(f"Train modeling using {input_path}")
     print(f"Model used: {config.model.name}")
@@ -38,8 +40,6 @@ def train_model(config: DictConfig):
     num_params = config.model.num_params
     cat_params = config.model.cat_params
     target = ["pts"]
-
-    print("Dataset loaded.")
 
     # Step 2. Create the data loaders
     train_iter, test_iter = load_data_football(
@@ -51,7 +51,9 @@ def train_model(config: DictConfig):
 
     # PyTorch does not implicitly reshape the inputs. Thus we define the flatten
     # layer to reshape the inputs before the linear layer in our network
-    net = nn.Sequential(nn.Flatten(), nn.Linear(input_size, 3))
+    net = nn.Sequential(
+        nn.Flatten(), nn.Linear(input_size, 3), nn.ReLU(), nn.Linear(3, 3)
+    )
 
     def init_weights(m):
         if type(m) == nn.Linear:
@@ -79,6 +81,15 @@ def train_model(config: DictConfig):
     # assert train_loss < 0.3, train_loss
     assert train_acc <= 1 and train_acc > 0.3, train_acc
     assert test_acc <= 1 and test_acc > 0.3, test_acc
+
+    # Save the model and prediction
+    for param_tensor in net.state_dict():
+        print(param_tensor, "\t", net.state_dict()[param_tensor].size())
+    torch.save(net.state_dict(), model_path)
+
+    # TODO - add prediction
+    # predict = net(test_iter)
+    # df_predict = pd.DataFrame()
 
 
 # Data loading

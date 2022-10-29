@@ -57,7 +57,7 @@ class FootballDataset(Dataset):
                 return row
 
         self.y = self.football_frame[self.target]
-        self.y[self.y > 2] = 2
+        self.y.loc[self.y > 2, :] = 2
 
     def __len__(self):
         return len(self.football_frame)

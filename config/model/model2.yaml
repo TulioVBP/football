@@ -1,4 +1,6 @@
 name: model2
+dir: models
+path: ${model.dir}/${model.name}
 
 num_params: 
   - avgn_points

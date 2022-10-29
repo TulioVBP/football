@@ -1,0 +1,8 @@
+[core]
+    remote = originalremote
+['remote "myremote"']
+    url = gdrive://1ZoXHZsz9N_ewT3Vkb4J3pwK_Xs7q9wSH?usp=share_link
+['remote "myremote2"']
+    url = gdrive://1ZoXHZsz9N_ewT3Vkb4J3pwK_Xs7q9wSH
+['remote "originalremote"']
+    url = gdrive://1ZoXHZsz9N_ewT3Vkb4J3pwK_Xs7q9wSH

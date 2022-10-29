@@ -10,10 +10,10 @@ from scraper import ScraperResults, ScraperRosters
 
 class DataPreprocessing:
     def __init__(self, output_path, input_dir, update=False):
-        self.ScraperResults = ScraperResults()
-        self.ScraperRoster = ScraperRosters()
         self.output_path = output_path
         self.input_dir = input_dir
+        self.ScraperResults = ScraperResults(input_dir)
+        self.ScraperRoster = ScraperRosters(input_dir)
         if update:
             # Step 1 - Update the database
             self.__updateDatabase()

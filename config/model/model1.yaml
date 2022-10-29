@@ -1,4 +1,6 @@
 name: model1
+dir: models
+path: ${model.dir}/${model.name}
 
 num_params: 
   - season_points
