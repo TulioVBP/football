@@ -1,5 +1,5 @@
 """
-This is the demo code that uses hydra
+Function to train a deep learning neural network using PyTorch and softmax for match result prediction. Model parameters are defined in the config files.
 
 Author: Tulio Patriota
 """
@@ -26,7 +26,11 @@ from utils.FootballDataset import FootballDataset
 
 @hydra.main(config_path="../config", config_name="main")
 def train_model(config: DictConfig):
-    """Function to train the model"""
+    """Function to train the model
+    args:
+        config_path: path to configuration files.
+        config_name: config file name.
+    """
 
     input_path = abspath(config.processed.path)
     output_path = abspath(config.final.path)

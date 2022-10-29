@@ -1,5 +1,5 @@
 """
-This is the demo code that uses hydra to access the parameters in under the directory config.
+This function process the raw data scrapped from web, process it and save an expanded database.
 """
 
 import imp
@@ -14,7 +14,9 @@ from utils.DataPreprocessing import DataPreprocessing
 
 @hydra.main(config_path="../config", config_name="main")
 def process_data(config: DictConfig, update=False):
-    """Function to process the data"""
+    """Function to process the data
+    Args:
+        update: if set to True, will update the database after scraping newer match results."""
     DataPreprocessing(
         abspath(config.processed.path), abspath(config.raw.dir), update
     )

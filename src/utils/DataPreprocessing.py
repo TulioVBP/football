@@ -5,11 +5,19 @@ import pandas as pd
 from hydra.utils import to_absolute_path as abspath
 from omegaconf import DictConfig
 
-from scraper import ScraperResults, ScraperRosters
+from utils.scraper import ScraperResults, ScraperRosters
 
 
 class DataPreprocessing:
+    """ Class to process data. Called by process.py in main src folder."""
+
     def __init__(self, output_path, input_dir, update=False):
+        """Initializes instance of the class DataPreprocessing.
+
+        Args:
+            output_path: parent directory for the processed data. Defined in the config file.
+            input_dir: parent directory of the raw data. Defined in the config file.
+            update: if set to True, will update the database by scraping the web for newer results."""
         self.output_path = output_path
         self.input_dir = input_dir
         self.ScraperResults = ScraperResults(input_dir)

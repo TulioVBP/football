@@ -1,3 +1,5 @@
+""" Function to predict the match results based on a trained model. WIP."""
+
 from unicodedata import name
 
 import hydra

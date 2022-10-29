@@ -1,3 +1,5 @@
+"""This submodule presents two classes for scraping results from the web. To scrape, set the update flag of process.py to True."""
+
 import codecs
 import json
 import logging

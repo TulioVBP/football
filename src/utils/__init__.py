@@ -1,1 +1,1 @@
-""" Auxiliar files"""
+""" Auxiliar modules."""
