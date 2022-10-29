@@ -7,6 +7,38 @@ Run the below commands to setup the virtual environment (using poetry):
     make activate
     make setup
 
+## View package documentation
+
+Run the below command to view the documentation using [pdoc3](https://pdoc3.github.io/pdoc/doc/pdoc/#gsc.tab=0):
+
+    make docs_view
+
+In some cases we may want to tell python where out code is, therefore we can append the full path to the code (this can be found by typing pwd in the code folder) to the current PYTHONPATH variable:
+
+    export PYTHONPATH=$PYTHONPATH:/users/tulio/project_folder/code/
+
+For this example, the path would be to the source code.
+
+## Data Version Control
+
+The code uses [DVC](https://dvc.org/doc/start/data-management/data-versioning) for data versioning. To update the version of your dataset, run:
+
+    dvc repro
+    git add dvc.lock
+    git commit -m "DVC vX.X"
+
+To store the data remotely, run:
+
+    dvc remote add --default your-remote-bucket
+    dvc push
+
+To pull the data, run
+
+    make pull_data
+
+## Run Predictions (IN CONSTRUCTION)
+
+
 # Reference
 
 ## Football predicter
