@@ -4,6 +4,7 @@ Function to train a deep learning neural network using PyTorch and softmax for m
 Author: Tulio Patriota
 """
 
+import imp
 from pathlib import Path
 from tkinter import HIDDEN
 
@@ -20,6 +21,7 @@ from torchvision import transforms
 
 from utils.Accumulator import Accumulator
 from utils.FootballDataset import FootballDataset
+from utils.load_data_football import load_data_football
 
 # from d2l import torch as d2l
 
@@ -94,28 +96,6 @@ def train_model(config: DictConfig):
     # TODO - add prediction
     # predict = net(test_iter)
     # df_predict = pd.DataFrame()
-
-
-# Data loading
-def load_data_football(
-    batch_size, num_par, cat_par, target, input_path
-):  # @save
-    """Load the dataset into memory."""
-    # Load dataset
-    dataset = FootballDataset(
-        cat_par, num_par, target, csv_file=input_path
-    )  # ,league = ["La liga"], season = [2015,2016] )
-
-    # Split into training and test
-    train_size = int(0.8 * len(dataset))
-    test_size = len(dataset) - train_size
-    trainset, testset = data.random_split(dataset, [train_size, test_size])
-
-    # Dataloaders
-    return (
-        data.DataLoader(trainset, batch_size=batch_size, shuffle=True),
-        data.DataLoader(testset, batch_size=batch_size, shuffle=False),
-    )
 
 
 # Function to train epoch

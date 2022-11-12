@@ -37,3 +37,8 @@ final:
   dir: data/final
   name: final.csv
   path: ${final.dir}/${final.name}
+
+to_predict:
+  dir: data/to_predict
+  name: to_predict.csv
+  path: ${to_predict.dir}/${to_predict.name}
