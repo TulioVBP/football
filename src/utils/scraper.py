@@ -1,15 +1,19 @@
 """This submodule presents two classes for scraping results from the web. To scrape, set the update flag of process.py to True."""
 
 import codecs
+import imp
 import json
 import logging
 import os
 from datetime import date
 from pathlib import Path
 
+import hydra
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from genericpath import isdir
+from hydra.utils import to_absolute_path as abspath
 from pandas import json_normalize
 
 # Initialize logger
@@ -24,6 +28,7 @@ fileHandler.setFormatter(formatter)
 logger.addHandler(fileHandler)
 
 
+# TODO - Associate the parent folder to the config file - https://hydra.cc/docs/advanced/compose_api/
 class ScraperResults:
     def __init__(
         self,
@@ -238,3 +243,44 @@ class ScraperRosters:
             df.to_csv(filePath)
             matchId_prev = matchId
         logger.info("\t ... Scrapping done!")
+
+
+class ScraperFutureMatches:
+    def __init__(
+        self,
+        leagues=["EPL", "La liga", "Bundesliga", "Serie A", "Ligue 1", "RFPL"],
+        parent_folder="data/raw/future_matches",
+    ):
+        self.leagues = leagues
+        self.parent_folder = Path(parent_folder)
+
+    def loop_scrape(self):
+        # Step 0 - Create parent dir if there isn't one
+        if not self.parent_folder.is_dir():
+            self.parent_folder.mkdir()
+
+        for league in self.leagues():
+            logger.info(f"Scrapping future matches from {league} ...")
+            url = "https://understat.com/league/" + league
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, "html.parser")
+            scripts = soup.find_all("script")
+            for script in scripts:
+                if "var datesData" in str(script):
+                    encoded_string = str(script)
+                    encoded_string = encoded_string.split("JSON.parse('", 1)[
+                        -1
+                    ]
+                    # encoded_string = encoded_string.rsplit("=",1)[0]
+                    encoded_string = encoded_string.rsplit("');", 1)[0]
+                    # Have it ignore the escape characters so it can decode the ascii
+                    # and be able to use json.loads
+                    jsonStr = codecs.getdecoder("unicode-escape")(
+                        encoded_string
+                    )[0]
+                    jsonObj = json.loads(jsonStr.split("]")[0] + "]")
+                    df = json_normalize(jsonObj)
+            # Step - Save the file
+            df.drop(df[df["isResult"]].index, inplace=True)
+            df["league"] = league
+            df.to_csv(self.parent_folder.joinpath(league + ".csv"))

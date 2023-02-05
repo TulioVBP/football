@@ -1,5 +1,6 @@
 """ Function to predict the match results based on a trained model. WIP."""
 
+from pathlib import Path
 from unicodedata import name
 
 import hydra
@@ -16,8 +17,10 @@ from utils.load_data_football import load_data_football
 
 @hydra.main(config_path="../config", config_name="main")
 # TODO - Predict future matches
+# TODO - Add logger
 # TODO - Create function to pull the next matches and create the "to_predict" file. The approach below assumes the to predict data is ready.
 def predict(config: DictConfig):
+    data_prep(config)
     # Open next matches
     to_predict_path = abspath(config.to_predict.path)
     final_path = abspath(config.final.path)
@@ -26,8 +29,8 @@ def predict(config: DictConfig):
     num_params = config.model.num_params
     cat_params = config.model.cat_params
     model_path = abspath(config.model.path)
-    # target = ["pts"]
-    # predict_iter = load_data_football(num_par=num_params, cat_par=cat_params,target=target,input_path=to_predict_path,to_predict=True)
+
+    df_predict.dropna(subset=num_params, inplace=True)
     X = tensor_pipeline(
         num_params, cat_params, df_predict
     )  # return the tensor
@@ -41,11 +44,12 @@ def predict(config: DictConfig):
 
     # Predict result
     predicted_results = model(X).argmax(axis=1)
-    df_predict = pd.concat(
-        df_predict,
-        pd.DataFrame(predicted_results, columns=["Expected result"]),
-    )
+    # df_predict = pd.concat(
+    #    [df_predict,
+    #    pd.DataFrame(predicted_results, columns=["Expected result"])]
+    # )
 
+    df_predict["Expected result"] = pd.Series(predicted_results)
     # Save to output
     df_predict.to_csv(final_path)
 
@@ -61,12 +65,49 @@ def tensor_pipeline(num_par, cat_par, df):
 
     # One-hot encoding of categorical variables
     football_frame = pd.get_dummies(df, prefix=categorical)
+    football_frame["h_a_a"] = 0  # TODO make this workaround more robust
 
     # Dropping matches not available (mismatch between rosters and matches"
-    football_frame.dropna(subset=numerical, inplace=True)
 
     # Save target and predictors
     return torch.tensor(football_frame.values).float()
+
+
+def data_prep(config: DictConfig):
+    # TODO add the date of the last match to understand how updated the prediction is
+    # Read the reference latest stats
+    processed_path = abspath(config.processed.path)
+    df_proc = pd.read_csv(processed_path)
+    df_proc.dropna(inplace=True)  # TODO limit to processed schema drop
+    df_ref = df_proc.sort_values("date").groupby("team_id").tail(1)
+
+    # Read the next matches
+    files = Path(abspath(config.raw.future_matches_path)).glob("**/*.csv")
+    schema = config.processed.schema_expanded
+    schema_adv = config.processed.schema_expanded_adv
+    schema_adv_map = {col: col + "_adv" for col in schema}
+    df = pd.DataFrame()
+    for file in files:
+        df_temp = pd.read_csv(file)
+        # Add home stats
+        df_temp_h = df_temp.rename(columns={"h.id": "team_id"}).merge(
+            df_ref.loc[:, schema], how="left", on="team_id"
+        )
+        df_temp_a = (
+            df_temp.rename(columns={"a.id": "team_id"})
+            .merge(df_ref.loc[:, schema], how="left", on="team_id")
+            .rename(columns=schema_adv_map)
+        )
+        df_league = df_temp_h.merge(
+            df_temp_a.loc[:, schema_adv], left_index=True, right_index=True
+        )
+        # Add missing fieldds
+        df_league["h_a"] = "h"
+        df = pd.concat([df, df_league], ignore_index=True)
+
+    # Save the file
+    to_predict_path = abspath(config.to_predict.path)
+    df.to_csv(to_predict_path)
 
 
 if __name__ == "__main__":

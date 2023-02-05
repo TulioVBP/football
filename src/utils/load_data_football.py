@@ -1,5 +1,6 @@
-from FootballDataset import FootballDataset
 from torch.utils import data
+
+from utils.football_dataset import FootballDataset
 
 # TODO - bring this function inside the train_model function
 

@@ -5,6 +5,7 @@ defaults:
 
 raw:
   dir: data/raw
+  future_matches_path: ${raw.dir}/future_matches 
   schema_teams: 
     - h_a
     - xG
@@ -32,6 +33,38 @@ processed:
   dir: data/processed
   name: processed.csv
   path: ${processed.dir}/${processed.name}
+  schema_expanded:
+    - team_id
+    - season_points
+    - avg_season_points
+    - scored_goals_season
+    - avg_scored_goals_season
+    - missed_goals_season
+    - avg_missed_goals_season
+    - avg_xG_season
+    - avg_xGA_season
+    - avgn_points
+    - avgn_scored_goals
+    - avgn_missed_goals
+    - avg_ppda.att
+    - avg_ppda.def
+    - avg_ppda_allowed.att
+    - avg_ppda_allowed.def
+    - avg_deep
+    - avg_deep_allowed
+  schema_expanded_adv:
+    - season_points_adv
+    - scored_goals_season_adv
+    - missed_goals_season_adv
+    - avg_ppda.att_adv
+    - avg_ppda.def_adv
+    - avg_ppda_allowed.att_adv
+    - avg_ppda_allowed.def_adv
+    - avg_deep_adv
+    - avg_deep_allowed_adv 
+    - avgn_scored_goals_adv
+    - avgn_points_adv
+    - avgn_missed_goals_adv
 
 final:
   dir: data/final
