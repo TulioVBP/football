@@ -16,9 +16,7 @@ from utils.load_data_football import load_data_football
 
 
 @hydra.main(config_path="../config", config_name="main")
-# TODO - Predict future matches
 # TODO - Add logger
-# TODO - Create function to pull the next matches and create the "to_predict" file. The approach below assumes the to predict data is ready.
 def predict(config: DictConfig):
     data_prep(config)
     # Open next matches
