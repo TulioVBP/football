@@ -5,7 +5,7 @@ import imp
 import json
 import logging
 import os
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import hydra
@@ -32,9 +32,9 @@ logger.addHandler(fileHandler)
 class ScraperResults:
     def __init__(
         self,
-        parent_folder="data/raw/",
+        parent_folder="../data/raw/",
         leagues=["EPL", "La liga", "Bundesliga", "Serie A", "Ligue 1", "RFPL"],
-        seasons=[2014 + ii for ii in range(8)],
+        seasons=range(2014, date.today().year + 1),
     ) -> None:
         self.leagues = leagues  # Initialize the leagues
         self.seasons = seasons  # Initialize the seasons
@@ -153,7 +153,7 @@ class ScraperResults:
 
 # %%
 class ScraperRosters:
-    def __init__(self, parent_folder="data/raw/Rosters"):
+    def __init__(self, parent_folder="../data/raw/Rosters"):
         self.parent_folder = parent_folder
         pass
 
@@ -248,10 +248,16 @@ class ScraperRosters:
 class ScraperFutureMatches:
     def __init__(
         self,
-        leagues=["EPL", "La liga", "Bundesliga", "Serie A", "Ligue 1", "RFPL"],
-        parent_folder="data/raw/future_matches",
+        parent_folder="../data/raw/future_matches",
     ):
-        self.leagues = leagues
+        self.leagues = [
+            "EPL",
+            "La liga",
+            "Bundesliga",
+            "Serie A",
+            "Ligue 1",
+            "RFPL",
+        ]
         self.parent_folder = Path(parent_folder)
 
     def loop_scrape(self):
@@ -259,7 +265,7 @@ class ScraperFutureMatches:
         if not self.parent_folder.is_dir():
             self.parent_folder.mkdir()
 
-        for league in self.leagues():
+        for league in self.leagues:
             logger.info(f"Scrapping future matches from {league} ...")
             url = "https://understat.com/league/" + league
             response = requests.get(url)
@@ -281,6 +287,11 @@ class ScraperFutureMatches:
                     jsonObj = json.loads(jsonStr.split("]")[0] + "]")
                     df = json_normalize(jsonObj)
             # Step - Save the file
-            df.drop(df[df["isResult"]].index, inplace=True)
+            idx_drop = df[
+                df["isResult"]
+                | (pd.to_datetime(df["datetime"]) < datetime.now())
+            ].index
+            df.drop(idx_drop, inplace=True)
             df["league"] = league
             df.to_csv(self.parent_folder.joinpath(league + ".csv"))
+            logger.info("... scrapping done!")

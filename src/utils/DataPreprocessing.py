@@ -5,23 +5,33 @@ import pandas as pd
 from hydra.utils import to_absolute_path as abspath
 from omegaconf import DictConfig
 
-from utils.scraper import ScraperResults, ScraperRosters
+from utils.scraper import ScraperFutureMatches, ScraperResults, ScraperRosters
 
 
 class DataPreprocessing:
     """ Class to process data. Called by process.py in main src folder."""
 
-    def __init__(self, output_path, input_dir, update=False):
+    def __init__(
+        self,
+        output_path_process,
+        input_dir_train,
+        input_dir_predict,
+        update=False,
+    ):
         """Initializes instance of the class DataPreprocessing.
 
         Args:
-            output_path: parent directory for the processed data. Defined in the config file.
-            input_dir: parent directory of the raw data. Defined in the config file.
+            output_path_process: parent directory for the processed data. Defined in the config file.
+            input_dir_train: parent directory of the raw data. Defined in the config file.
+            input_dir_update: parent directory for future matches.
             update: if set to True, will update the database by scraping the web for newer results."""
-        self.output_path = output_path
-        self.input_dir = input_dir
-        self.ScraperResults = ScraperResults(input_dir)
-        self.ScraperRoster = ScraperRosters(input_dir)
+        self.output_path_process = output_path_process
+        self.input_dir_train = input_dir_train
+        self.input_dir_predict = input_dir_predict
+        self.ScraperResults = ScraperResults(input_dir_train)
+        self.ScraperRoster = ScraperRosters(input_dir_train)
+        self.ScraperFutureMatches = ScraperFutureMatches(input_dir_predict)
+
         if update:
             # Step 1 - Update the database
             self.__updateDatabase()
@@ -34,7 +44,8 @@ class DataPreprocessing:
 
     def __updateDatabase(self):
         self.ScraperResults.loop_scrape()
-        self.ScraperRoster.loop_scrape()
+        # self.ScraperRoster.loop_scrape()
+        self.ScraperFutureMatches.loop_scrape()
 
     def __readData(self):
         leagues = [
@@ -77,7 +88,7 @@ class DataPreprocessing:
                 return int(date_.year) - 1
 
         for league in leagues:
-            directoryPath = self.input_dir + "/" + league
+            directoryPath = self.input_dir_train + "/" + league
             for file in Path(directoryPath).iterdir():
                 if file.suffix == ".csv":
                     print(file)
@@ -106,7 +117,7 @@ class DataPreprocessing:
             df.drop("index", axis=1, inplace=True)
 
             df_rosters = pd.read_csv(
-                self.input_dir + "/" + "Rosters/rosters.csv"
+                self.input_dir_train + "/" + "Rosters/rosters.csv"
             )
 
             self.df = df
@@ -267,4 +278,4 @@ class DataPreprocessing:
             ]
 
     def __saveData(self):
-        self.df.to_csv(self.output_path)
+        self.df.to_csv(self.output_path_process)

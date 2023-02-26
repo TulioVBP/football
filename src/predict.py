@@ -1,5 +1,6 @@
 """ Function to predict the match results based on a trained model. WIP."""
 
+import datetime
 from pathlib import Path
 from unicodedata import name
 
@@ -21,7 +22,13 @@ def predict(config: DictConfig):
     data_prep(config)
     # Open next matches
     to_predict_path = abspath(config.to_predict.path)
-    final_path = abspath(config.final.path)
+    final_path = abspath(
+        config.final.dir
+        + "/"
+        + datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        + "_"
+        + config.final.name
+    )
     df_predict = pd.read_csv(to_predict_path)
     # Load the data loaders
     num_params = config.model.num_params
@@ -42,14 +49,14 @@ def predict(config: DictConfig):
 
     # Predict result
     predicted_results = model(X).argmax(axis=1)
-    # df_predict = pd.concat(
-    #    [df_predict,
-    #    pd.DataFrame(predicted_results, columns=["Expected result"])]
-    # )
-
-    df_predict["Expected result"] = pd.Series(predicted_results)
+    df_predict.reset_index(inplace=True)
+    pts_to_str = {0: "l", 1: "d", 2: "w"}
+    df_predict["h.predicted_result"] = pd.Series(predicted_results)
+    df_predict["h.predicted_result"] = df_predict["h.predicted_result"].apply(
+        lambda row: pts_to_str[row]
+    )
     # Save to output
-    df_predict.to_csv(final_path)
+    df_predict[config.final.schema].to_csv(final_path)
 
 
 def tensor_pipeline(num_par, cat_par, df):
@@ -102,10 +109,6 @@ def data_prep(config: DictConfig):
         # Add missing fieldds
         df_league["h_a"] = "h"
         df = pd.concat([df, df_league], ignore_index=True)
-
-    # Save the file
-    to_predict_path = abspath(config.to_predict.path)
-    df.to_csv(to_predict_path)
 
 
 if __name__ == "__main__":

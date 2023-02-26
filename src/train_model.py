@@ -20,7 +20,7 @@ from torch.utils import data
 from torchvision import transforms
 
 from utils.Accumulator import Accumulator
-from utils.FootballDataset import FootballDataset
+from utils.football_dataset import FootballDataset
 from utils.load_data_football import load_data_football
 
 # from d2l import torch as d2l
@@ -92,10 +92,6 @@ def train_model(config: DictConfig):
     for param_tensor in net.state_dict():
         print(param_tensor, "\t", net.state_dict()[param_tensor].size())
     torch.save(net.state_dict(), model_path)
-
-    # TODO - add prediction
-    # predict = net(test_iter)
-    # df_predict = pd.DataFrame()
 
 
 # Function to train epoch

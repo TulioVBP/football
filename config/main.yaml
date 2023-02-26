@@ -70,8 +70,19 @@ final:
   dir: data/final
   name: final.csv
   path: ${final.dir}/${final.name}
+  schema:
+    - datetime
+    - h.title
+    - a.title
+    - h.predicted_result
+
 
 to_predict:
-  dir: data/to_predict
+  dir: ${processed.dir}
   name: to_predict.csv
   path: ${to_predict.dir}/${to_predict.name}
+
+to_test:
+  dir: ${to_predict.dir}
+  name: to_test.csv
+  path: ${to_test.dir}/${to_test.name}
